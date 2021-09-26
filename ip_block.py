@@ -48,7 +48,7 @@ class IpBlock():
         '''
         로그인 실패 정보
         '''
-        pattern = re.compile('(\d{4}\-\d{2}\-\d{2}T\d{2}\:\d{2}\:\d{2}[\-|\+]\d{2}\:\d{2}).*?authentication failure.*?rhost=((?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)).*?user=(.*?)[\n|\r]')
+        pattern = re.compile('(\d{4}\-\d{2}\-\d{2}T\d{2}\:\d{2}\:\d{2}[\-|\+]\d{2}\:\d{2}).*?authentication failure.*?rhost=((?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))(.*?)[\n|\r]')
 
         start_time = int(datetime.now(timezone.utc).timestamp()) - 1200
 
@@ -59,13 +59,17 @@ class IpBlock():
                 for log in fh.readlines():
                     if log.lower().find('authentication failure') < 0:
                         continue
-
+                    
                     matches = pattern.match(log)
                     if matches is not None:
                         # 2021-08-04T00:49:38+09:00
                         set_time = int(datetime.fromisoformat(matches[1]).timestamp())
                         ip_address = matches[2]
-                        account = matches[3]
+                        account = ''
+
+                        # 아이디
+                        if matches[3].find('user=') > 0:
+                            account = matches[3].replace('user=', '')
 
                         # 20분 넘은 내용은 무시
                         if set_time < start_time:
