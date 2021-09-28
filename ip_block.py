@@ -69,8 +69,8 @@ class IpBlock():
 
                         # 아이디
                         if matches[3].find('user=') > 0:
-                            account = matches[3].replace('user=', '')
-
+                            account = matches[3].replace('user=', '').strip()
+                            
                         # 20분 넘은 내용은 무시
                         if set_time < start_time:
                             continue
