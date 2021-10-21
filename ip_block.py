@@ -50,7 +50,7 @@ class IpBlock():
         '''
         pattern = re.compile('(\d{4}\-\d{2}\-\d{2}T\d{2}\:\d{2}\:\d{2}[\-|\+]\d{2}\:\d{2}).*?authentication failure.*?rhost=((?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))(.*?)[\n|\r]')
 
-        start_time = int(datetime.now(timezone.utc).timestamp()) - 1200
+        start_time = int(datetime.now(timezone.utc).timestamp()) - 3600
 
         block_address_list = []
 
@@ -136,6 +136,8 @@ class IpBlock():
             self.db_conn.commit()
             self.set_block_ip(ipv4)
 
+        current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        print("[%s] block ip : %s" % (current_time, ip_address))
         self.db_conn.commit()
 
 if __name__ == "__main__":
@@ -144,7 +146,6 @@ if __name__ == "__main__":
     ip_block = IpBlock()
     block_ip_list = ip_block.get_auth_fail()
     for ip_address in block_ip_list:
-        print("block ip : ",ip_address)
         ip_block.block_update_count = 0
         ip_block.set_block_ip(ip_address)
     ip_block.db_conn.close()
